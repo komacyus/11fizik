@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Serbest Düşme & İki Boyutta Hareket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF1F6; --paper2:#E4E9F1; --ink:#14213D; --ink-soft:#4A5570;
+  --amber:#E8A33D; --teal:#0F766E; --line:#C7D0DE; --card:#FFFFFF;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;line-height:1.65;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+h1,h2,h3{font-family:'Fraunces',serif;margin:0 0 .4em;font-weight:600;color:var(--ink)}
+h2{font-size:1.6rem}
+h3{font-size:1.15rem}
+.wrap{max-width:720px;margin:0 auto;padding:0 24px 80px;position:relative}
+code{font-family:'IBM Plex Mono',monospace}
+p{margin:0 0 14px}
+
+#rail{position:fixed;left:6px;top:0;bottom:0;width:26px;z-index:5;pointer-events:none}
+#rail .track{position:absolute;left:12px;top:0;bottom:0;width:2px;background:repeating-linear-gradient(var(--line) 0 6px,transparent 6px 16px)}
+#ball{position:absolute;left:6px;width:14px;height:14px;border-radius:50%;background:var(--amber);
+  box-shadow:0 0 0 4px rgba(232,163,61,.18);transition:top .05s linear}
+@media (max-width:600px){#rail{display:none}}
+
+header.hero{padding:60px 24px 36px;max-width:720px;margin:0 auto}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:var(--teal);letter-spacing:.02em}
+h1{font-size:clamp(1.9rem,6.5vw,2.9rem);line-height:1.08;margin-top:.3em}
+.hero p{color:var(--ink-soft);font-size:1.02rem;max-width:58ch}
+.tabs{display:flex;gap:8px;margin:18px 0 0;flex-wrap:wrap}
+.tab{font-family:'IBM Plex Mono',monospace;font-size:.78rem;padding:6px 12px;border-radius:16px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink-soft);text-decoration:none}
+
+section{margin:54px 0}
+.tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--teal);
+  background:#E7F3F1;padding:3px 9px;border-radius:12px;margin-bottom:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px 24px}
+.formula-box{background:var(--ink);color:#F5EFE0;border-radius:8px;padding:14px 18px;margin:12px 0;
+  font-family:'IBM Plex Mono',monospace;font-size:1rem;overflow-x:auto}
+.formula-box small{display:block;color:#B9C4D8;font-family:'IBM Plex Sans',sans-serif;font-size:.76rem;margin-top:4px}
+.note{border-left:3px solid var(--amber);padding:10px 16px;background:#FBF3E4;border-radius:0 6px 6px 0;font-size:.92rem;margin:14px 0}
+table.g{width:100%;border-collapse:collapse;font-size:.88rem;margin:10px 0}
+table.g th,table.g td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left}
+table.g th{font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);font-weight:500}
+
+.diagram{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin:16px 0;text-align:center}
+.diagram svg{max-width:100%;height:auto}
+.diagram .cap{font-size:.82rem;color:var(--ink-soft);margin-top:8px}
+.graph-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:16px 0}
+@media (max-width:560px){.graph-row{grid-template-columns:1fr}}
+.graph{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center}
+.graph svg{width:100%;height:auto}
+.graph .label{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--ink-soft);margin-top:4px}
+
+.example{border:1px dashed var(--teal);border-radius:10px;padding:18px 20px;margin:16px 0;background:#FBFDFC}
+.example .tag{background:#DCEFE9}
+.example ol{padding-left:20px;margin:8px 0 0}
+.example li{margin-bottom:8px}
+
+details{border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--card)}
+summary{cursor:pointer;font-weight:500;color:var(--teal);font-family:'IBM Plex Mono',monospace;font-size:.88rem}
+details p{margin:10px 0 0;font-size:.92rem}
+
+.calc label{display:block;font-size:.85rem;color:var(--ink-soft);margin-bottom:4px}
+.calc input,.calc select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;
+  font-family:'IBM Plex Mono',monospace;font-size:1rem;background:var(--paper2)}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.btn-row button{font-family:'IBM Plex Mono',monospace;font-size:.85rem;padding:8px 14px;border-radius:6px;
+  border:1px solid var(--line);background:var(--paper2);color:var(--ink);cursor:pointer}
+.btn-row button.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.result{margin-top:14px;padding:14px 16px;background:#E7F3F1;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:.95rem}
+.result span{color:var(--teal);font-weight:600}
+
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:480px){.facts{grid-template-columns:1fr}}
+.flip{perspective:1000px;height:150px;cursor:pointer}
+.flip-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .flip-inner{transform:rotateY(180deg)}
+.flip-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:10px;padding:16px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:.92rem}
+.flip-front{background:var(--ink);color:#F5EFE0;font-family:'Fraunces',serif;font-size:1.05rem}
+.flip-back{background:var(--teal);color:#fff;transform:rotateY(180deg)}
+
+.quiz-q{margin-bottom:18px}
+.quiz-q p{font-weight:500;margin-bottom:8px}
+.opt{display:block;width:100%;text-align:left;padding:10px 14px;margin:6px 0;border:1px solid var(--line);
+  border-radius:7px;background:var(--card);cursor:pointer;font-family:inherit;font-size:.93rem;color:var(--ink)}
+.opt:hover{border-color:var(--teal)}
+.opt.correct{background:#E1F3EA;border-color:#2E8B57;color:#1c5c38}
+.opt.wrong{background:#FBE7E4;border-color:#C0392B;color:#8f2a1f}
+.score{font-family:'IBM Plex Mono',monospace;color:var(--teal);margin-top:8px}
+footer{text-align:center;color:var(--ink-soft);font-size:.85rem;padding:20px 24px}
+</style>
+</head>
+<body>
+<div id="rail"><div class="track"></div><div id="ball"></div></div>
+
+<header class="hero">
+  <div class="eyebrow">11. Sınıf Fizik · Kuvvet ve Hareket</div>
+  <h1>Serbest Düşme ve İki Boyutta Hareket</h1>
+  <p>Konunun tam anlatımı: neden böyle davranır, formüller nereden gelir, grafikler ne anlatır — hepsi örneklerle. Sonunda hesaplayıcılar, hap bilgiler ve mini test var.</p>
+  <div class="tabs">
+    <a class="tab" href="#sd">① Serbest Düşme</a>
+    <a class="tab" href="#yatay">② Yatay Atış</a>
+    <a class="tab" href="#egik">③ Eğik Atış</a>
+    <a class="tab" href="#hap">④ Hap Bilgiler</a>
+    <a class="tab" href="#quiz">⑤ Test</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section id="sd">
+  <span class="tag">01 — Serbest Düşme</span>
+  <h2>Bir cismi bıraktığında ne olur?</h2>
+  <p>Balkondaki saksı rüzgârla düşer, buluttan ayrılan yağmur damlası yere iner, paraşütçü uçaktan atlar — bunların hepsi aynı fiziksel olayın farklı görünümleridir. Hava direncini yok sayarsak, cisme etki eden <strong>tek kuvvet ağırlıktır (Dünya'nın çekim kuvveti)</strong>. Sadece bu kuvvetin etkisiyle yapılan harekete <strong>serbest düşme</strong> denir.</p>
+  <p>Dikkat: "serbest düşme" sadece durgun halden bırakılan cisimler için kullanılan bir isim değildir. Yukarı atılan, aşağı atılan ya da durgun bırakılan — yer çekimi tek kuvvet olduğu sürece hepsi serbest düşme hareketi yapar.</p>
+
+  <h3>Yer çekimi ivmesi neden sabittir?</h3>
+  <p>Dünya'nın yüzeyine yakın her noktada, cisme etki eden çekim kuvveti neredeyse hiç değişmez. Bu yüzden Dünya'ya yakın bölgede serbest düşen her cisim, <strong>kütlesinden bağımsız olarak</strong> aynı ivmeyle (g) hızlanır.</p>
+  <div class="formula-box">g ≈ 9,8 m/s² &nbsp;(hesaplamalarda genelde 10 m/s² kullanılır)</div>
+
+  <details>
+    <summary>Galileo bunu nasıl kanıtladı?</summary>
+    <p>Efsaneye göre Galileo, Pisa Kulesi'nden farklı ağırlıktaki toplar bırakarak ikisinin de aynı anda yere çarptığını gösterdi. Günümüzde bu Ay'da bir tüy ile bir çekiçle de tekrarlanmıştır: havasız ortamda ikisi de aynı anda yere düşer. Sebep basit — ağır cisme daha büyük çekim kuvveti uygulanır, ama aynı cismin <em>eylemsizliği</em> de (hareketine direnci) kütlesiyle orantılı büyür. İkisi birbirini götürür ve ivme kütleden bağımsız kalır.</p>
+  </details>
+
+  <div class="note">Aynı yükseklikten bırakılan <strong>farklı kütleli</strong> cisimler hava direnci yoksa <strong>tam olarak aynı anda</strong>, <strong>aynı hızla</strong> yere çarpar.</div>
+
+  <h3>Hareketin grafikleri</h3>
+  <p>İlk hızı sıfır olan bir cismin serbest düşmesini üç grafikle özetleyebiliriz:</p>
+  <div class="graph-row">
+    <div class="graph">
+      <svg viewBox="0 0 160 110"><line x1="20" y1="10" x2="20" y2="90" stroke="#C7D0DE"/><line x1="20" y1="90" x2="150" y2="90" stroke="#C7D0DE"/>
+      <line x1="20" y1="90" x2="140" y2="20" stroke="#E8A33D" stroke-width="2.5"/>
+      <text x="4" y="14" font-size="9" fill="#4A5570">v</text><text x="140" y="104" font-size="9" fill="#4A5570">t</text></svg>
+      <div class="label">v–t: doğru, eğimi g</div>
+    </div>
+    <div class="graph">
+      <svg viewBox="0 0 160 110"><line x1="20" y1="10" x2="20" y2="90" stroke="#C7D0DE"/><line x1="20" y1="90" x2="150" y2="90" stroke="#C7D0DE"/>
+      <path d="M20,90 Q60,88 140,20" stroke="#E8A33D" stroke-width="2.5" fill="none"/>
+      <text x="4" y="14" font-size="9" fill="#4A5570">h</text><text x="140" y="104" font-size="9" fill="#4A5570">t</text></svg>
+      <div class="label">h–t: parabol, t² ile artar</div>
+    </div>
+    <div class="graph">
+      <svg viewBox="0 0 160 110"><line x1="20" y1="10" x2="20" y2="90" stroke="#C7D0DE"/><line x1="20" y1="90" x2="150" y2="90" stroke="#C7D0DE"/>
+      <line x1="20" y1="40" x2="140" y2="40" stroke="#E8A33D" stroke-width="2.5"/>
+      <text x="4" y="14" font-size="9" fill="#4A5570">a</text><text x="140" y="104" font-size="9" fill="#4A5570">t</text></svg>
+      <div class="label">a–t: yatay doğru, a = g sabit</div>
+    </div>
+  </div>
+  <p style="font-size:.92rem;color:var(--ink-soft)">v-t grafiği neden doğru? Çünkü ivme sabit — her saniye hıza eşit miktar eklenir. h-t grafiği neden parabol? Çünkü alınan yol zamanın <em>karesiyle</em> artıyor: ilk saniyede az yol, sonraki saniyelerde çok daha fazla yol alınır.</p>
+
+  <h3>Formüller</h3>
+  <div class="formula-box">v = g·t <small>Hız — zamanla doğru orantılı artar</small></div>
+  <div class="formula-box">h = ½·g·t² <small>Alınan yol — zamanın karesiyle artar</small></div>
+  <div class="formula-box">v² = 2·g·h <small>Zaman bilinmeden hız-yükseklik ilişkisi</small></div>
+
+  <div class="example">
+    <span class="tag">Çözümlü örnek</span>
+    <p><strong>Soru:</strong> Hava direncinin önemsenmediği bir ortamda 45 m yükseklikten ilk hızsız bırakılan cisim kaç saniyede ve kaç m/s hızla yere çarpar? (g = 10 m/s²)</p>
+    <ol>
+      <li>h = ½gt² formülünden t'yi çekelim: 45 = ½·10·t² → t² = 9 → <strong>t = 3 s</strong></li>
+      <li>v = g·t formülünden: v = 10·3 = <strong>30 m/s</strong></li>
+      <li>Kontrol: v² = 2gh → 30² = 900, 2·10·45 = 900 ✓</li>
+    </ol>
+  </div>
+
+  <h3>Gezegen tablosu ve hesaplayıcı</h3>
+  <p>g'nin büyüklüğü gezegenden gezegene değişir — bu yüzden aynı yükseklikten bırakılan özdeş bir cisim, Mars'ta Dünya'dakinden çok daha yavaş düşer.</p>
+  <table class="g">
+    <tr><th>Gezegen</th><th>g (m/s²)</th><th>Gezegen</th><th>g (m/s²)</th></tr>
+    <tr><td>Dünya</td><td>9,8</td><td>Jüpiter</td><td>24,79</td></tr>
+    <tr><td>Mars</td><td>3,71</td><td>Satürn</td><td>10,44</td></tr>
+    <tr><td>Merkür</td><td>3,7</td><td>Venüs / Uranüs</td><td>8,87</td></tr>
+  </table>
+
+  <div class="card calc" style="margin-top:16px">
+    <h3>Hesaplayıcı</h3>
+    <div class="calc-grid">
+      <div><label>Yükseklik (m)</label><input id="sdH" type="number" placeholder="örn. 45" inputmode="decimal"></div>
+      <div><label>Gezegen</label>
+        <select id="sdG">
+          <option value="9.8">Dünya (9,8)</option>
+          <option value="3.71">Mars (3,71)</option>
+          <option value="24.79">Jüpiter (24,79)</option>
+          <option value="1.6">Ay (1,6)</option>
+        </select>
+      </div>
+    </div>
+    <div class="result" id="sdResult">Yükseklik girince süre ve hız burada görünür.</div>
+  </div>
+</section>
+
+<section id="yatay">
+  <span class="tag">02 — İki Boyutta Hareket</span>
+  <h2>Yatay Atış</h2>
+  <p>Bir basketbolcu topu çembere sadece yukarı doğru atarak geçiremez — hem yatay hem düşey yönde hız kazandırması gerekir. İşte bu, iki boyutta hareketin özüdür: <strong>bir cismin yatay ve düşey hareketleri birbirinden tamamen bağımsızdır.</strong> Biri diğerini etkilemez.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 320 170">
+      <line x1="30" y1="20" x2="30" y2="140" stroke="#C7D0DE" stroke-dasharray="3,3"/>
+      <line x1="30" y1="140" x2="300" y2="140" stroke="#C7D0DE"/>
+      <path d="M30,20 C120,20 220,60 290,135" stroke="#0F766E" stroke-width="2.5" fill="none"/>
+      <circle cx="30" cy="20" r="5" fill="#E8A33D"/>
+      <line x1="30" y1="20" x2="60" y2="20" stroke="#14213D" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="64" y="24" font-size="10" fill="#14213D">v₀</text>
+      <line x1="30" y1="20" x2="30" y2="48" stroke="#E8A33D" stroke-width="2" marker-end="url(#arrow2)"/>
+      <text x="36" y="46" font-size="10" fill="#E8A33D">g</text>
+      <text x="8" y="85" font-size="10" fill="#4A5570">h</text>
+      <text x="150" y="155" font-size="10" fill="#4A5570">x (menzil)</text>
+      <defs>
+        <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#14213D"/></marker>
+        <marker id="arrow2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#E8A33D"/></marker>
+      </defs>
+    </svg>
+    <div class="cap">Yatayda sabit v₀, düşeyde g ile hızlanan iki bağımsız hareketin toplamı</div>
+  </div>
+
+  <h3>Yatay yön: neden sabit hız?</h3>
+  <p>Cisme yatay doğrultuda etki eden hiçbir kuvvet yoktur (hava direnci yok sayıldığında). Net kuvvet sıfırsa ivme de sıfırdır — yani cisim yatayda <strong>sabit hızla</strong> gider, ne hızlanır ne yavaşlar.</p>
+  <h3>Düşey yön: neden serbest düşme?</h3>
+  <p>Düşey doğrultuda tek kuvvet ağırlıktır — tıpkı sıradan serbest düşmede olduğu gibi. Bu yüzden cismin düşeydeki hareketi, atış hızı v₀ ne olursa olsun, <strong>aynı yükseklikten bırakılan bir cismin serbest düşmesiyle birebir aynıdır.</strong></p>
+
+  <div class="formula-box">Düşey: h = ½g·t² &nbsp;&nbsp; v_düşey = g·t</div>
+  <div class="formula-box">Yatay: x = v₀·t</div>
+
+  <div class="note">Düşme süresi <strong>sadece yüksekliğe</strong> bağlıdır. Topu ister yavaş ister hızlı atasın, yere aynı sürede iner — sadece ne kadar ileri gittiği (menzil) değişir.</div>
+
+  <div class="example">
+    <span class="tag">Çözümlü örnek</span>
+    <p><strong>Soru:</strong> 80 m yükseklikten 30 m/s'lik yatay hızla atılan cismin havada kalma süresi ve menzili kaçtır? (g = 10 m/s²)</p>
+    <ol>
+      <li>Düşey harekette yükseklik serbest düşme formülünü verir: 80 = ½·10·t² → t² = 16 → <strong>t = 4 s</strong></li>
+      <li>Yatayda sabit hızla gittiği için: x = v₀·t = 30·4 = <strong>120 m</strong></li>
+    </ol>
+  </div>
+
+  <div class="card calc" style="margin-top:16px">
+    <h3>Hesaplayıcı</h3>
+    <div class="calc-grid">
+      <div><label>Yükseklik h (m)</label><input id="yH" type="number" placeholder="örn. 80" inputmode="decimal"></div>
+      <div><label>Yatay hız v₀ (m/s)</label><input id="yV" type="number" placeholder="örn. 30" inputmode="decimal"></div>
+    </div>
+    <div class="result" id="yResult">Değerleri girince uçuş süresi ve menzil burada görünür.</div>
+  </div>
+</section>
+
+<section id="egik">
+  <span class="tag">02 — İki Boyutta Hareket</span>
+  <h2>Eğik Atış</h2>
+  <p>Bir ok, yatayla belirli bir açı yaparak fırlatılırsa artık hız tamamen yatay değildir — eğik bir doğrultuda başlar. Bu hızı, trigonometri ile iki bileşenine ayırırız:</p>
+  <div class="formula-box">v₀ₓ = v₀·cosα <small>yatay bileşen — atış boyunca sabit kalır</small></div>
+  <div class="formula-box">v₀y = v₀·sinα <small>düşey bileşen — yukarı çıkarken yavaşlar, inerken hızlanır</small></div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 320 170">
+      <line x1="20" y1="150" x2="300" y2="150" stroke="#C7D0DE"/>
+      <path d="M20,150 C100,20 220,20 300,150" stroke="#0F766E" stroke-width="2.5" fill="none"/>
+      <line x1="20" y1="150" x2="70" y2="90" stroke="#14213D" stroke-width="2" marker-end="url(#a3)"/>
+      <text x="74" y="88" font-size="10" fill="#14213D">v₀</text>
+      <line x1="160" y1="18" x2="190" y2="18" stroke="#14213D" stroke-width="2" marker-end="url(#a3)"/>
+      <text x="192" y="22" font-size="10" fill="#14213D">v₀cosα</text>
+      <text x="155" y="40" font-size="10" fill="#4A5570">h_max</text>
+      <defs><marker id="a3" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#14213D"/></marker></defs>
+    </svg>
+    <div class="cap">Tepe noktasında düşey hız sıfırdır, sadece yatay bileşen (v₀cosα) kalır</div>
+  </div>
+
+  <h3>Tepe noktasına çıkış süresi</h3>
+  <p>Tepe noktasında düşey hız sıfır olur (cisim artık ne yükseliyor ne alçalıyordur — o anlık dönüş noktasıdır). v = v₀ - g·t formülünde v_düşey'i sıfır yaparak çıkış süresini buluruz:</p>
+  <div class="formula-box">0 = v₀sinα - g·t_çıkış → t_çıkış = v₀sinα / g</div>
+  <p>Havasız ortamda yörünge simetrik olduğu için inişte geçen süre de çıkıştaki ile aynıdır — yani toplam uçuş süresi bunun iki katıdır:</p>
+  <div class="formula-box">t_uçuş = 2·v₀sinα / g</div>
+
+  <h3>Maksimum yükseklik ve menzil</h3>
+  <p>h_max'ı bulmak için düşey yoldaki h = v₀y·t - ½g·t² formülüne t_çıkış'ı yerleştiririz; sadeleştirince:</p>
+  <div class="formula-box">h_max = (v₀sinα)² / 2g</div>
+  <p>Menzil ise basittir: yatayda sabit hızla gidilen toplam mesafe, yani yatay hız × toplam uçuş süresi:</p>
+  <div class="formula-box">Menzil = v₀cosα · t_uçuş</div>
+
+  <details>
+    <summary>Neden 45° menzili maksimum yapar?</summary>
+    <p>Menzil formülünde sinα·cosα çarpımı önemlidir — trigonometride bu çarpım α=45° olduğunda en büyük değerine ulaşır. Bu yüzden sabit bir hızla atılan cisimde en uzağa gitmek istiyorsan 45° ile atmalısın. O durumda menzil, maksimum yüksekliğin tam 4 katına eşit olur.</p>
+  </details>
+  <details>
+    <summary>37° ile 53° neden aynı menzili verir?</summary>
+    <p>sin(37°) = cos(53°) ve cos(37°) = sin(53°) olduğundan, menzil formülündeki sinα·cosα çarpımı her iki açı için de aynı değeri verir. Genel kural: toplamları 90° olan iki açı (tümler açılar), aynı hızla atıldığında aynı menzili üretir — ama uçuş süreleri ve maksimum yükseklikleri farklıdır.</p>
+  </details>
+
+  <div class="example">
+    <span class="tag">Çözümlü örnek</span>
+    <p><strong>Soru:</strong> Yatayla 37° açı yaparak 50 m/s hızla atılan bir cismin uçuş süresi, maksimum yüksekliği ve menzili kaçtır? (g = 10 m/s², sin37° = 0,6; cos37° = 0,8)</p>
+    <ol>
+      <li>t_uçuş = 2·v₀sinα/g = 2·50·0,6/10 = <strong>6 s</strong></li>
+      <li>h_max = (v₀sinα)²/2g = (50·0,6)²/20 = 900/20 = <strong>45 m</strong></li>
+      <li>Menzil = v₀cosα·t_uçuş = 50·0,8·6 = <strong>240 m</strong></li>
+    </ol>
+  </div>
+
+  <div class="card calc" style="margin-top:16px">
+    <h3>Hesaplayıcı</h3>
+    <div class="calc-grid">
+      <div><label>Hız v₀ (m/s)</label><input id="eV" type="number" placeholder="örn. 50" inputmode="decimal"></div>
+      <div><label>Açı α</label>
+        <div class="btn-row" id="eAngles">
+          <button data-a="30">30°</button><button data-a="37" class="active">37°</button>
+          <button data-a="45">45°</button><button data-a="53">53°</button><button data-a="60">60°</button>
+        </div>
+      </div>
+    </div>
+    <div class="result" id="eResult">Hız girince uçuş süresi, maksimum yükseklik ve menzil burada görünür.</div>
+  </div>
+</section>
+
+<section id="hap">
+  <span class="tag">Hap Bilgiler</span>
+  <h2>Kartlara dokun, çevir</h2>
+  <div class="facts" id="facts"></div>
+</section>
+
+<section id="quiz">
+  <span class="tag">Kendini sına</span>
+  <h2>6 soru</h2>
+  <div id="quiz-box"></div>
+  <div class="score" id="score"></div>
+</section>
+
+</div>
+<footer>11. Sınıf Fizik · Serbest Düşme & İki Boyutta Sabit İvmeli Hareket</footer>
+
+<script>
+const g0=9.8;
+const ball=document.getElementById('ball');
+function onScroll(){
+  const doc=document.documentElement;
+  const p=Math.min(1,window.scrollY/(doc.scrollHeight-window.innerHeight));
+  ball.style.top=((p*p)*(window.innerHeight-24)+4)+'px';
+}
+window.addEventListener('scroll',onScroll);onScroll();
+
+function calcSD(){
+  const h=parseFloat(document.getElementById('sdH').value);
+  const g=parseFloat(document.getElementById('sdG').value);
+  const out=document.getElementById('sdResult');
+  if(!h||h<=0){out.textContent='Yükseklik girince süre ve hız burada görünür.';return;}
+  const t=Math.sqrt(2*h/g), v=g*t;
+  out.innerHTML=`t = <span>${t.toFixed(2)} s</span> &nbsp;·&nbsp; v = <span>${v.toFixed(2)} m/s</span>`;
+}
+document.getElementById('sdH').addEventListener('input',calcSD);
+document.getElementById('sdG').addEventListener('change',calcSD);
+
+function calcY(){
+  const h=parseFloat(document.getElementById('yH').value);
+  const v0=parseFloat(document.getElementById('yV').value);
+  const out=document.getElementById('yResult');
+  if(!h||h<=0){out.textContent='Değerleri girince uçuş süresi ve menzil burada görünür.';return;}
+  const t=Math.sqrt(2*h/g0);
+  const x=(v0||0)*t;
+  out.innerHTML=`t_uçuş = <span>${t.toFixed(2)} s</span> &nbsp;·&nbsp; menzil x = <span>${x.toFixed(2)} m</span>`;
+}
+document.getElementById('yH').addEventListener('input',calcY);
+document.getElementById('yV').addEventListener('input',calcY);
+
+let eAngle=37;
+document.getElementById('eAngles').addEventListener('click',e=>{
+  if(e.target.tagName!=='BUTTON')return;
+  [...e.currentTarget.children].forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  eAngle=+e.target.dataset.a;
+  calcE();
+});
+function sinDeg(d){return Math.sin(d*Math.PI/180)}
+function cosDeg(d){return Math.cos(d*Math.PI/180)}
+function calcE(){
+  const v0=parseFloat(document.getElementById('eV').value);
+  const out=document.getElementById('eResult');
+  if(!v0||v0<=0){out.textContent='Hız girince uçuş süresi, maksimum yükseklik ve menzil burada görünür.';return;}
+  const s=sinDeg(eAngle), c=cosDeg(eAngle);
+  const tucus=2*v0*s/g0;
+  const hmax=(v0*s)**2/(2*g0);
+  const menzil=v0*c*tucus;
+  out.innerHTML=`t_uçuş = <span>${tucus.toFixed(2)} s</span> &nbsp;·&nbsp; h_max = <span>${hmax.toFixed(2)} m</span> &nbsp;·&nbsp; menzil = <span>${menzil.toFixed(2)} m</span>`;
+}
+document.getElementById('eV').addEventListener('input',calcE);
+
+const factsData=[
+  ["Kütle önemli mi?","Hayır. Aynı yükseklikten bırakılan farklı kütleli cisimler aynı anda, aynı hızla yere çarpar."],
+  ["5-15-25 kuralı","İlk hızsız serbest düşmede birbirini izleyen eşit sürelerde alınan yollar hep aynı miktarda artar: 5m, 15m, 25m..."],
+  ["Yatay atışta düşey hareket","Serbest düşmeyle birebir aynıdır — tek fark cismin aynı zamanda yatayda da ilerliyor olması."],
+  ["Yatay atışta hız-ivme açısı","İvme hep aşağı sabit (g); hız vektörü gitgide dikleştiği için aralarındaki açı zamanla azalır."],
+  ["Eğik atışta tepe nokta","Tepe noktasında düşey hız sıfırdır, cisim sadece v₀cosα yatay hızıyla hareket eder."],
+  ["Çıkış süresi = İniş süresi","Havasız ortamda eğik atışta çıkışta geçen süre ile inişte geçen süre birbirine eşittir."],
+  ["Maksimum menzil açısı","Aynı hızla atılan cisimde en büyük menzil 45°'de elde edilir; o anda menzil = 4×h_max."],
+  ["37° ile 53° neden eşit menzil verir?","Toplamları 90° olan açı çiftleri (37°-53°, 30°-60°) aynı hızla atıldığında aynı menzili verir."],
+  ["Yatay atışta düşme süresi neye bağlı?","Sadece yüksekliğe. Atış hızı ne olursa olsun, aynı yükseklikten atılan cisimler aynı anda yere iner."],
+  ["g nasıl değişir?","Gezegenin kütlesi ve yarıçapına bağlıdır — bu yüzden her gök cisminde farklıdır (Ay'da Dünya'nın ~1/6'sı)."]
+];
+const factsEl=document.getElementById('facts');
+factsData.forEach(([f,b])=>{
+  const d=document.createElement('div');
+  d.className='flip';
+  d.innerHTML=`<div class="flip-inner"><div class="flip-face flip-front">${f}</div><div class="flip-face flip-back">${b}</div></div>`;
+  d.addEventListener('click',()=>d.classList.toggle('on'));
+  factsEl.appendChild(d);
+});
+
+const quizData=[
+  {q:"Serbest düşmede farklı kütleli iki cisim aynı yükseklikten bırakılırsa...",opts:["Ağır olan önce düşer","Aynı anda düşerler","Hafif olan önce düşer"],correct:1},
+  {q:"Yatay atışta cismin yatay yöndeki hareketi nasıldır?",opts:["Sabit ivmeli","Sabit hızlı","Önce hızlanır sonra yavaşlar"],correct:1},
+  {q:"Eğik atışta tepe noktasında hangi hız bileşeni sıfırdır?",opts:["Yatay bileşen","Düşey bileşen","İkisi de sıfırdır"],correct:1},
+  {q:"Aynı hızla atılan bir cisim için maksimum menzil hangi açıda elde edilir?",opts:["30°","45°","60°"],correct:1},
+  {q:"Yatay atışta düşey yöndeki hareket hangi harekete benzer?",opts:["Sabit hızlı harekete","Serbest düşmeye","Dairesel harekete"],correct:1},
+  {q:"37° ve 53° açılarıyla aynı hızla atılan cisimler için ne söylenebilir?",opts:["Menzilleri eşittir","Uçuş süreleri eşittir","Maksimum yükseklikleri eşittir"],correct:0}
+];
+const quizEl=document.getElementById('quiz-box');
+const scoreEl=document.getElementById('score');
+let score=0,answered=0;
+quizData.forEach((item,i)=>{
+  const box=document.createElement('div');
+  box.className='quiz-q';
+  box.innerHTML=`<p>${i+1}. ${item.q}</p>`+
+    item.opts.map((o,j)=>`<button class="opt" data-i="${i}" data-j="${j}">${o}</button>`).join('');
+  quizEl.appendChild(box);
+});
+quizEl.addEventListener('click',e=>{
+  if(!e.target.classList.contains('opt'))return;
+  const i=+e.target.dataset.i,j=+e.target.dataset.j;
+  const box=quizEl.children[i];
+  if(box.dataset.done)return;
+  box.dataset.done='1';
+  [...box.querySelectorAll('.opt')].forEach((btn,k)=>{
+    if(k===quizData[i].correct)btn.classList.add('correct');
+    else if(k===j)btn.classList.add('wrong');
+    btn.style.pointerEvents='none';
+  });
+  if(j===quizData[i].correct)score++;
+  answered++;
+  scoreEl.textContent=`Skor: ${score}/${answered}${answered===quizData.length?' — tamamlandı 🎉':''}`;
+});
+</script>
+</body>
+</html>
